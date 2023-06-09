@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>async-from-web-browser</title>
+    <script>
+        async function invoke() {
+          try {
+            const url = document.getElementById('url-input').value;
+            console.log(url)
+            const response = await fetch(url);
+            console.log(response)
+            const data = await response.text();
+    
+            // find the pre element and set its inner HTML to the response data
+            document.getElementById('result').innerHTML = data;
+          } catch (error) {
+            // set the inner HTML of the result element to the error message
+            document.getElementById('result').innerHTML = `Error: ${error.message}`;
+          }
+        }
+    </script>
+</head>
+<body>
+    <h1>async-from-web-browser</h1>
+    <p>Enter invoker function's URL after you've deployed the project:</p>
+    <input type="text" id="url-input" placeholder="Enter URL here">
+    <p>Click "Invoke" to invoke the main function asynchronously by having this web page use AJAX to invoke the invoker function synchronously using its web function URL. Use dev tools (network tab) to see more details of the invoker function invocation.</p>
+    <button onclick="invoke()">Invoke</button>
+    <pre id="result">...</pre>
+</body>
+
+</html>

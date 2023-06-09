@@ -1,0 +1,47 @@
+packages:
+  - name: async-from-web-browser
+    functions:
+      # This function represents the main function, the function actually doing
+      # useful work. It must be invoked asynchronously (in this case because it
+      # is expected to take longer than 30 seconds to complete it's work). It
+      # cannot be invoked asynchronously using a web function URL because those
+      # invocations will return early after 30 seconds if they run for longer
+      # than that. The only way to invoke it asynchronously without having to
+      # wait for this 30 second timeout to pass is to use its REST API URL.
+      # However, doing so from a web browser would expose the namespace API key
+      # publicly. Therefore, this function must be invoked by secure, server
+      # side code. See "main-function-invoker" below.
+      - name: main-function
+        runtime: nodejs:18
+        # Not a web function because it doesn't need to be invoked by a web
+        # browser.
+        web: false
+        limits:
+          # Long timeout because this function is doing the actual work and is
+          # expected to take a while. In this case, it's expected to take 31
+          # seconds to complete its work. 3 second buffer.
+          timeout: 34000
+      # This function's only purpose is to be secure, server side code used to
+      # invoke the main function. Asynchronous invocations result in a response
+      # containing the activation ID being immediately returned to the HTTP
+      # client. This function reads the activation ID from that response and
+      # propagates it to its own HTTP client, the web browser. Therefore, the
+      # web browser gets access to the activation ID immediately without having
+      # to wait for 30 seconds.
+      - name: main-function-invoker
+        runtime: nodejs:18
+        web: true
+        environment:
+          # Configures the function using environment variables so that we
+          # don't need to hard-code the name of the main function. It needs to
+          # know the name of the main function in order to assemble the URL it
+          # will use to invoke it.
+          MAIN_FUNCTION_NAME: main-function
+        annotations:
+          # Causes the namespace API key (the credential used for the REST API)
+          # to be injected at runtime so that it doesn't need to be hard-coded
+          # in the function code or provided at runtime using more complex
+          # techniques. It needs to know the API key in order to invoke the
+          # main function because REST API endpoints are secured using basic
+          # use with the namespace API key.
+          provide-api-key: true
