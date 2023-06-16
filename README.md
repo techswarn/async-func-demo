@@ -1,5 +1,7 @@
 # functions-async-from-web-browser-example
 
+CREDIT:: Matt Welke from DigitalOcean functions engineer has developed this example.
+
 Shows how to securely invoke a function from a web browser asynchronously.
 
  ## Architecture
